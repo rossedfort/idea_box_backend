@@ -5,6 +5,10 @@ class Api::V1::IdeasController < ApplicationController
     respond_with Idea.all
   end
 
+  def show
+    respond_with Idea.find(params[:id])
+  end
+
   def create
     @idea = Idea.new(idea_params)
 
@@ -16,7 +20,13 @@ class Api::V1::IdeasController < ApplicationController
   end
 
   def update
-    respond_with Idea.update(params[:id], idea_params)
+    idea = Idea.find(params[:id])
+    if idea.update(idea_params)
+      render json: idea
+      # respond_with(idea, status: 200, location: api_v1_idea_path(idea)),
+    else
+      render json: idea.errors, status: 422
+    end
   end
 
   def destroy
@@ -26,7 +36,6 @@ class Api::V1::IdeasController < ApplicationController
   private
 
   def idea_params
-    params[:idea][:quality] = params[:idea][:quality].to_i
-    params.require(:idea).permit(:title, :body, :quality)
+    params.require(:idea).permit(:id, :title, :body, :quality)
   end
 end
